@@ -1819,8 +1819,10 @@ static int yaffs_iterate(struct file *f, struct dir_context *dc)
 		goto out;
 	}
 
-	if (!dir_emit_dots(f, dc))
+	if (!dir_emit_dots(f, dc)) {
+		yaffs_gross_unlock(dev);
 		return 0;
+	}
 
 	curoffs = 1;
 
