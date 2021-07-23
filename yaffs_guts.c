@@ -163,6 +163,8 @@ u8 *yaffs_get_temp_buffer(struct yaffs_dev * dev)
 
 }
 
+/* Frees all the temp_buffer objects in the yaffs_dev instance
+*/
 void yaffs_release_temp_buffer(struct yaffs_dev *dev, u8 *buffer)
 {
 	int i;
@@ -3017,10 +3019,8 @@ static void yaffs_check_obj_details_loaded(struct yaffs_obj *in)
 
 	result = yaffs_rd_chunk_tags_nand(dev, in->hdr_chunk, buf, &tags);
 
-	if (result == YAFFS_FAIL) {
-		yaffs_release_temp_buffer(dev, buf);
+	if (result == YAFFS_FAIL)
 		return;
-	}
 
 	oh = (struct yaffs_obj_hdr *)buf;
 
@@ -3202,6 +3202,7 @@ int yaffs_update_oh(struct yaffs_obj *in, const YCHAR *name, int force,
 					  in->my_dev->param.chunks_per_block);
 		bi->has_shrink_hdr = 1;
 	}
+
 
 	return new_chunk_id;
 }

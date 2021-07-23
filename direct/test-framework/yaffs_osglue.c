@@ -106,13 +106,7 @@ static void *bg_gc_func(void *dummy)
 
 		while ((dev = yaffs_next_dev()) != NULL) {
 			result = yaffs_do_background_gc_reldev(dev, urgent);
-
-			/* result is 1 if more than half the free space is
-			 * erased.
-			 * If less than half the free space is erased then it is
-			 * worth doing another background_gc operation sooner.
-			 */
-			if (result == 0)
+			if (result > 0)
 				next_urgent = 1;
 		}
 
