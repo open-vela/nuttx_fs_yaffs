@@ -12,7 +12,9 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-#ifdef YAFFS_CURRENT
+#ifdef CONFIG_YAFFS_DIRECT
+	#include "direct/yportenv.h"
+#elif defined YAFFS_CURRENT
 	#include "yportenv_single.h"
 #else
 	#include "yportenv_multi.h"
