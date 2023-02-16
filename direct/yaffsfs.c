@@ -3597,6 +3597,7 @@ struct yaffs_dirent *yaffsfs_readdir_no_lock(yaffs_DIR * dirp)
 				/* this should not happen! */
 				yaffs_strcpy(dsc->de.d_name, _Y("zz"));
 			}
+			dsc->de.d_type = yaffs_get_obj_type(dsc->nextReturn);
 			dsc->de.d_reclen = sizeof(struct yaffs_dirent);
 			retVal = &dsc->de;
 			yaffsfs_DirAdvance(dsc);
