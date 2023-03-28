@@ -226,6 +226,7 @@ int yaffs_mknod_reldir(struct yaffs_obj *reldir, const YCHAR *pathname,
 /* Function variants that use a relative device */
 struct yaffs_dev;
 int yaffs_mount_reldev(struct yaffs_dev *dev);
+int yaffs_mount2_reldev(struct yaffs_dev *dev, int readonly);
 int yaffs_open_sharing_reldev(struct yaffs_dev *dev, const YCHAR *path, int oflag, int mode, int sharing);
 int yaffs_open_reldev(struct yaffs_dev *dev,const YCHAR *path, int oflag, int mode);
 int yaffs_truncate_reldev(struct yaffs_dev *dev, const YCHAR *path, Y_LOFF_T new_size);
