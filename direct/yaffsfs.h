@@ -227,6 +227,8 @@ int yaffs_mknod_reldir(struct yaffs_obj *reldir, const YCHAR *pathname,
 struct yaffs_dev;
 int yaffs_mount_reldev(struct yaffs_dev *dev);
 int yaffs_mount2_reldev(struct yaffs_dev *dev, int readonly);
+int yaffs_mount3_reldev(struct yaffs_dev *dev,
+                        int read_only, int skip_checkpt);
 int yaffs_open_sharing_reldev(struct yaffs_dev *dev, const YCHAR *path, int oflag, int mode, int sharing);
 int yaffs_open_reldev(struct yaffs_dev *dev,const YCHAR *path, int oflag, int mode);
 int yaffs_truncate_reldev(struct yaffs_dev *dev, const YCHAR *path, Y_LOFF_T new_size);
