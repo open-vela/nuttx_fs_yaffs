@@ -1811,7 +1811,7 @@ static int yaffsfs_DoStat(struct yaffs_obj *obj, struct yaffs_stat *buf)
 		buf->st_blksize = obj->my_dev->data_bytes_per_chunk;
 		buf->st_blocks = (buf->st_size + buf->st_blksize - 1) /
 		    buf->st_blksize;
-#if CONFIG_YAFFS_WINCE
+#ifdef CONFIG_YAFFS_WINCE
 		buf->yst_wince_atime[0] = obj->win_atime[0];
 		buf->yst_wince_atime[1] = obj->win_atime[1];
 		buf->yst_wince_ctime[0] = obj->win_ctime[0];
@@ -1942,7 +1942,7 @@ static int yaffsfs_DoUtime(struct yaffs_obj *obj,
 		return -1;
 	}
 
-#if !CONFIG_YAFFS_WINCE
+#ifndef CONFIG_YAFFS_WINCE
 	// if the the buffer is null then create one with the fields set to the current time.
 	if (!buf) {
 		local.actime = Y_CURRENT_TIME;
