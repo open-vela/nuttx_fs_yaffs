@@ -31,10 +31,19 @@
 #define u32 unsigned int
 #endif
 
+#ifndef u64
+#define u64 unsigned long long
+#endif
+
 #ifndef s32
 #define s32 int
 #endif
 
+#ifdef CONFIG_YAFFS_USE_32_BIT_TIME_T
+#define YTIME_T u32
+#else
+#define YTIME_T u64
+#endif
 
 #include <sys/types.h>
 #include <string.h>

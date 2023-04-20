@@ -40,13 +40,6 @@ unsigned yaffs_trace_mask=0;
 
 #define MAX_OBJECTS 10000
 
-// Adjust these to match your NAND LAYOUT:
-#define chunkSize 2048
-#define spareSize 64
-#define pagesPerBlock 64
-
-
-
 typedef struct
 {
 	dev_t dev;
@@ -54,7 +47,9 @@ typedef struct
 	int   obj;
 } objItem;
 
-struct yaffs_dev dummy_dev = {.swap_endian = 0};
+struct yaffs_dev dummy_dev = {.swap_endian = 0,
+                              .param.no_tags_ecc = 1,
+                              .param.inband_tags = 1};
 
 
 static objItem obj_list[MAX_OBJECTS];
@@ -68,6 +63,7 @@ static int error;
 static int savedErrno;
 
 static int convert_endian = 0;
+static int chunkSize = 2048;
 
 /* Provide our own endian swap that does nothing. */
 void yaffs_do_endian_packed_tags2(struct yaffs_dev *dev,
@@ -187,21 +183,10 @@ static void little_to_big_endian(struct yaffs_ext_tags *tagsPtr)
 #endif
 }
 
-static void shuffle_oob(char *spareData, struct yaffs_packed_tags2 *pt)
-{
-	assert(sizeof(*pt) <= spareSize);
-	// NAND LAYOUT: For non-trivial OOB orderings, here would be a good place to shuffle.
-	memcpy(spareData, pt, sizeof(*pt));
-}
-
 static int write_chunk(u8 *data, u32 id, u32 chunk_id, u32 n_bytes)
 {
 	struct yaffs_ext_tags t;
-	struct yaffs_packed_tags2 pt;
-	char spareData[spareSize];
-
-	if (write(outFile,data,chunkSize) != chunkSize)
-		fatal("write");
+	struct yaffs_packed_tags2_tags_only *pto;
 
 	memset(&t, 0, sizeof(t));
 
@@ -223,13 +208,9 @@ static int write_chunk(u8 *data, u32 id, u32 chunk_id, u32 n_bytes)
 
 	nPages++;
 
-	memset(&pt, 0, sizeof(pt));
-	yaffs_pack_tags2(&dummy_dev, &pt,&t,1);
-
-	memset(spareData, 0xff, sizeof(spareData));
-	shuffle_oob(spareData, &pt);
-
-	if (write(outFile,spareData,sizeof(spareData)) != sizeof(spareData))
+	pto = (struct yaffs_packed_tags2_tags_only *)(data + dummy_dev.data_bytes_per_chunk);
+	yaffs_pack_tags2_tags_only(&dummy_dev, pto, &t);
+	if (write(outFile,data,chunkSize) != chunkSize)
 		fatal("write");
 	return 0;
 }
@@ -347,22 +328,6 @@ static int write_object_header(int id, enum yaffs_obj_type t, struct stat *s, in
 
 }
 
-static void pad_image(void)
-{
-	u8 data[chunkSize + spareSize];
-	int padPages = (nPages % pagesPerBlock);
-
-	if (padPages)
-	{
-		memset(data, 0xff, sizeof(data));
-		for (padPages = pagesPerBlock-padPages; padPages; padPages--)
-		{
-			if (write(outFile, data, sizeof(data)) != sizeof(data))
-				fatal("write");
-		}
-	}
-}
-
 static int process_directory(int parent, const char *path)
 {
 
@@ -452,14 +417,14 @@ static int process_directory(int parent, const char *path)
 							{
 								int h;
 								u8 bytes[chunkSize];
-								int n_bytes;
+								int n_bytes =  chunkSize - sizeof(struct yaffs_packed_tags2_tags_only);
 								int chunk = 0;
 
 								h = open(full_name,O_RDONLY);
 								if(h >= 0)
 								{
 									memset(bytes,0xff,sizeof(bytes));
-									while((n_bytes = read(h,bytes,sizeof(bytes))) > 0)
+									while((n_bytes = read(h,bytes, n_bytes)) > 0)
 									{
 										chunk++;
 										write_chunk(bytes,newObj,chunk,n_bytes);
@@ -529,19 +494,20 @@ int main(int argc, char *argv[])
 
 	printf("mkyaffs2image: image building tool for YAFFS2 built "__DATE__"\n");
 
-	if(argc < 3)
+	if(argc < 4)
 	{
-		printf("usage: mkyaffs2image dir image_file [convert]\n");
+		printf("usage: mkyaffs2image dir image_file chunkSize [convert]\n");
 		printf("           dir        the directory tree to be converted\n");
 		printf("           image_file the output file to hold the image\n");
-        printf("           'convert'  produce a big-endian image from a little-endian machine\n");
+		printf("           chunkSize  the size of chunkSize\n");
+		printf("           'convert'  produce a big-endian image from a little-endian machine\n");
 		exit(1);
 	}
 
-    if ((argc == 4) && (!strncmp(argv[3], "convert", strlen("convert"))))
-    {
-        convert_endian = 1;
-    }
+	if ((argc == 5) && (!strncmp(argv[4], "convert", strlen("convert"))))
+	{
+		convert_endian = 1;
+	}
 
 	if(stat(argv[1],&stats) < 0)
 	{
@@ -564,10 +530,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	chunkSize = atoi(argv[3]);
+	dummy_dev.data_bytes_per_chunk = chunkSize - sizeof(struct yaffs_packed_tags2_tags_only);
+
 	printf("Processing directory %s into image file %s\n",argv[1],argv[2]);
 	process_directory(YAFFS_OBJECTID_ROOT,argv[1]);
-
-	pad_image();
 
 	close(outFile);
 
