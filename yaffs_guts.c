@@ -1859,7 +1859,7 @@ YCHAR *yaffs_clone_str(const YCHAR *str)
 	len = strnlen(str, YAFFS_MAX_ALIAS_LENGTH);
 	new_str = kmalloc((len + 1) * sizeof(YCHAR), GFP_NOFS);
 	if (new_str) {
-		strncpy(new_str, str, len);
+		strncpy(new_str, str, len + 1);
 		new_str[len] = 0;
 	}
 	return new_str;
@@ -4273,7 +4273,7 @@ static void yaffs_fix_null_name(struct yaffs_obj *obj, YCHAR *name,
 				int buffer_size)
 {
 	/* Create an object name if we could not find one. */
-	if (strnlen(name, YAFFS_MAX_NAME_LENGTH) == 0) {
+	if (strnlen(name, YAFFS_SHORT_NAME_LENGTH) == 0) {
 		YCHAR local_name[20];
 		YCHAR num_string[20];
 		YCHAR *x = &num_string[19];
