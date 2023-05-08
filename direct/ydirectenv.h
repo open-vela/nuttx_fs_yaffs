@@ -22,6 +22,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "syslog.h"
 #include "yaffs_osglue.h"
 #include "yaffs_hweight.h"
 
@@ -83,7 +84,7 @@ size_t strnlen(const char *s, size_t maxlen);
 #else
 #define yaffs_trace(msk, fmt, ...) do { \
 	if (yaffs_trace_mask & (msk)) \
-		printf("yaffs: " fmt "\n", ##__VA_ARGS__); \
+		syslog(LOG_INFO, "yaffs: " fmt "\n", ##__VA_ARGS__); \
 } while (0)
 
 #endif
