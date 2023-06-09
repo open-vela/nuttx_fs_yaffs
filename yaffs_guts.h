@@ -125,6 +125,10 @@
 /* Special sequence number for bad block that failed to be marked bad */
 #define YAFFS_SEQUENCE_BAD_BLOCK	0xffff0000
 
+#if !defined(CONFIG_FS_LARGEFILE) || !defined(CONFIG_HAVE_LONG_LONG)
+#define LOFF_T_32_BIT                   1
+#endif
+
 /* Chunk cache is used for short read/write operations.*/
 struct yaffs_cache {
 	struct yaffs_obj *object;
