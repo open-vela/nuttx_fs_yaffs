@@ -65,6 +65,10 @@ static inline void list_add(struct list_head *new_entry,
 
 }
 
+#ifdef list_add_tail
+#undef list_add_tail
+#endif
+
 static inline void list_add_tail(struct list_head *new_entry,
 				 struct list_head *list)
 {
@@ -108,6 +112,9 @@ static inline int list_empty(struct list_head *entry)
  * we can find a pointer to the object it is embedded in.
  */
 
+#ifndef list_entry
+#undef list_entry
+#endif
 
 #define list_entry(entry, type, member) \
 	((type *)((char *)(entry)-(unsigned long)(&((type *)NULL)->member)))
