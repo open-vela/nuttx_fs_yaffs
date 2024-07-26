@@ -892,23 +892,10 @@ int yaffs_open_sharing_reldir(struct yaffs_obj *reldir, const YCHAR *path,
 			is_dir = (obj->variant_type ==
 					YAFFS_OBJECT_TYPE_DIRECTORY);
 
-			/*
-			 * A directory can't be opened except for read, so we
-			 * ignore other flags
-			 */
 			if (is_dir) {
-				writeRequested = 0;
-				readRequested = 1;
-				rwflags = O_RDONLY;
-			}
-
-			if(is_dir) {
-				dsc = yaffsfs_opendir_reldir_no_lock(reldir, path);
-				if (!dsc) {
-					openDenied = __LINE__;
-					yaffsfs_SetError(-ENFILE);
-					errorReported = __LINE__;
-				}
+				openDenied = __LINE__;
+				yaffsfs_SetError(-EISDIR);
+				errorReported = __LINE__;
 			}
 
 			/* Open should fail if O_CREAT and O_EXCL are specified
