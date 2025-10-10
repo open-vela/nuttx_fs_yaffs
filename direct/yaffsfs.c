@@ -3574,6 +3574,17 @@ struct yaffs_dirent *yaffsfs_readdir_no_lock(yaffs_DIR * dirp)
 
 	dsc = (struct yaffsfs_DirSearchContext *) dirp;
 
+	if (dsc->offset == 0) {
+		dsc->de.d_type = YAFFS_OBJECT_TYPE_DIRECTORY;
+		strcpy(dsc->de.d_name, ".");
+		dsc->offset += 1;
+		return &dsc->de;
+	} else if (dsc->offset == 1) {
+		dsc->de.d_type = YAFFS_OBJECT_TYPE_DIRECTORY;
+		strcpy(dsc->de.d_name, "..");
+		dsc->offset += 1;
+		return &dsc->de;
+	}
 
 	if (dsc && dsc->inUse) {
 		yaffsfs_SetError(0);
