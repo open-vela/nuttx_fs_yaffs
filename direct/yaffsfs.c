@@ -3745,6 +3745,13 @@ int yaffs_symlink_reldir(struct yaffs_obj *reldir,
 	return retVal;
 
 }
+
+int yaffs_symlink_reldev(struct yaffs_dev *dev,
+			const YCHAR *oldpath, const YCHAR *newpath)
+{
+	return yaffs_symlink_reldir(ROOT_DIR(dev), oldpath, newpath);
+}
+
 int yaffs_symlink(const YCHAR *oldpath, const YCHAR *newpath)
 {
 	return yaffs_symlink_reldir(NULL, oldpath, newpath);
@@ -3786,6 +3793,13 @@ int yaffs_readlink_reldir(struct yaffs_obj *reldir,const YCHAR *path,
 	yaffsfs_Unlock();
 	return retVal;
 }
+
+int yaffs_readlink_reldev(struct yaffs_dev *dev, const YCHAR *path,
+			YCHAR *buf, int bufsiz)
+{
+	return yaffs_readlink_reldir(ROOT_DIR(dev), path, buf, bufsiz);
+}
+
 int yaffs_readlink(const YCHAR *path, YCHAR *buf, int bufsiz)
 {
 	return yaffs_readlink_reldir(NULL, path, buf, bufsiz);
@@ -3856,6 +3870,13 @@ int yaffs_link_reldir(struct yaffs_obj *reldir,
 
 	return retVal;
 }
+
+int yaffs_link_reldev(struct yaffs_dev *dev,
+			const YCHAR *oldpath, const YCHAR *linkpath)
+{
+	return yaffs_link_reldir(ROOT_DIR(dev), oldpath, linkpath);
+}
+
 int yaffs_link(const YCHAR *oldpath, const YCHAR *linkpath)
 {
 	return yaffs_link_reldir(NULL, oldpath, linkpath);
